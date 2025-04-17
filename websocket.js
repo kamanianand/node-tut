@@ -1,50 +1,23 @@
-const express = require('express');
-const http = require('http');
-const WebSocket = require('ws');
-const bodyParser = require('body-parser');
+const { Socket } = require('dgram');
+const express   = require('express');
+const http      = require('http');
+const path      = require("path");
+const {Server}  = require("socket.io");
 
-const app = express();
-const server = http.createServer(app); // HTTP server
-const wss = new WebSocket.Server({ server }); // WebSocket server
+const app     = express();
+const server  = http.createServer(app); // HTTP server
+const io      = new Server(server);
 
-app.use(bodyParser.json());
+app.use(express.static(path.resolve("./public")));
 
-// Store clients
-const clients = new Set();
-
-// WebSocket connection
-wss.on('connection', (ws) => {
-  console.log('🔌 New WebSocket connection');
-  clients.add(ws);
-
-  ws.on('message', (msg) => {
-    console.log('📩 Message from client:', msg.toString());
+io.on('connection',(socket) => {
+  socket.on("user-message", (message) => {
+    io.emit("message", message);
   });
-
-  ws.on('close', () => {
-    clients.delete(ws);
-    console.log('❌ Client disconnected');
-  });
-
-  // Send welcome
-  ws.send('👋 Connected to WebSocket server!');
 });
 
-// REST API endpoint to broadcast message to WebSocket clients
-app.post('/broadcast', (req, res) => {
-  const { message } = req.body;
-
-  if (!message) {
-    return res.status(400).json({ error: 'Message is required' });
-  }
-
-  clients.forEach((client) => {
-    if (client.readyState === WebSocket.OPEN) {
-      client.send(`📢 Broadcast: ${message}`);
-    }
-  });
-
-  res.json({ status: 'Message sent to all WebSocket clients' });
+app.get('/',(req,res) => {
+  return res.sendFile("/public/index.html");
 });
 
 // Start server
