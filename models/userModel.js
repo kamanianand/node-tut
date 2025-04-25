@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema({
         type:String,
         required:[true,'Password is required'],
         minlength:[6,'Password length should be greter then 6 charactor'],
-        select:true,
+        select:false,
     },
     country_code:{
         type:String,
@@ -52,4 +52,4 @@ userSchema.methods.comparePassword = async function(userPassword){
     return isMatch;
 }
 
-module.exports = mongoose.model('users',userSchema);
+module.exports = mongoose.model('User',userSchema);

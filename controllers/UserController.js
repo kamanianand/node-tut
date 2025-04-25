@@ -1,7 +1,19 @@
 const userModel = require("../models/userModel");
 
 const userlist = async (req,res,next) => {
-    return res.status(201).json({message:"User list ger successfully",status:true});
+    // const users = await userModel.find();
+    const users = await userModel.aggregate([
+        {
+          $lookup: {
+            from: 'blogs',             // 👈 MongoDB collection name (should match your actual collection name)
+            localField: '_id',         // 👈 user._id
+            foreignField: 'user_id',   // 👈 blog.user_id
+            as: 'blogs'                // 👈 the result field
+          }
+        }
+      ]);
+    
+    return res.status(201).json({users,message:"User list get successfully",status:true});
 }
 
 const updateUser = async (req,res,next) => {

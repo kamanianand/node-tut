@@ -4,6 +4,7 @@ const rateLimit = require('express-rate-limit');
 
 const {login,signup} = require('../controllers/LoginController');
 const {userlist,updateUser,searchUser} = require('../controllers/UserController');
+const {bloglist,addblog} = require('../controllers/BlogController');
 const userAuth = require('../middelwares/authMiddleware.js');
 
 const limiter = rateLimit({
@@ -21,5 +22,8 @@ router.post('/signup', signup);
 router.get('/userlist', userAuth, userlist);
 router.put('/update-user', userAuth, updateUser);
 router.post('/search-user', userAuth, searchUser);
+
+router.get('/get-blogs', userAuth, bloglist);
+router.post('/add-blog', userAuth, addblog);
 
 module.exports = router;
